@@ -35,7 +35,7 @@ async def get_jokes():
 @app.get("/api/joke/random")
 async def get_random_joke():
     api_key = os.getenv('HUMOR_API_KEY')
-    url = f'https://api.humorapi.com/jokes/search?api-key={api_key}&number=6&include-tags=dark,relationship'
+    url = f'https://api.humorapi.com/jokes/search?api-key={api_key}&number=6&include-tags=clean'
     headers = {'content-type': 'application/json'}
 
     http = urllib3.PoolManager()
