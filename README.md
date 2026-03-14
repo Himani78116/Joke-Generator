@@ -10,7 +10,10 @@ A simple app that fetches jokes from the Humor API.
 - Run: `uvicorn Backend.app:app --reload`
 
 ### Frontend
-- (Add instructions if you set up a proper React app with package.json)
+Navigate to Frontend/
+Run npm install to install React, Vite, etc.
+Run npm run dev to start the development server (typically on http://localhost:5173)
+Note to ensure the backend is running on port 8000 for the API calls.
 
 ## Usage
 - Start the backend, then open the frontend in a browser.
