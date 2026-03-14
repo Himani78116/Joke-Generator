@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
@@ -18,24 +19,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+class CategoryRequest(BaseModel):
+    category: str
 
-@app.get("/api/jokes")
-async def get_jokes():
-    api_key = os.getenv('HUMOR_API_KEY')
-    url = f'https://api.humorapi.com/jokes/search?api-key={api_key}&number=6&include-tags=clean'
-    headers = {'content-type': 'application/json'}
+@app.post("/jokes")
+def get_joke(data: CategoryRequest):
+    selected_category = data.category
 
-    http = urllib3.PoolManager()
-    req = http.request('GET', url, headers=headers)
-    data = json.loads(req.data.decode('UTF-8'))
-
-    jokes = data['jokes']
-    return jokes  # FastAPI auto-converts to JSON
+    return {
+        "message": f"Category received: {selected_category}"
+    }
 
 @app.get("/api/joke/random")
-async def get_random_joke():
+async def get_random_joke(category: str):
     api_key = os.getenv('HUMOR_API_KEY')
-    url = f'https://api.humorapi.com/jokes/search?api-key={api_key}&number=6&include-tags=clean'
+    url = f'https://api.humorapi.com/jokes/search?api-key={api_key}&number=6&include-tags={category}'
     headers = {'content-type': 'application/json'}
 
     http = urllib3.PoolManager()
@@ -45,3 +43,27 @@ async def get_random_joke():
     jokes = data['jokes']
     random_joke = random.choice(jokes)
     return random_joke
+
+@app.get("/api/memes/random")
+async def get_random_meme():
+    try:
+        api_key = os.getenv('HUMOR_API_KEY')
+        url = f'https://api.humorapi.com/memes/search?api-key={api_key}'
+
+        http = urllib3.PoolManager()
+        response = http.request('GET', url)
+        data = json.loads(response.data.decode('UTF-8'))
+
+        memes = data.get("memes", [])
+
+        if not memes:
+            return {"error": "No memes found"}
+        
+        meme = memes[0]
+
+        return {
+            "title": meme.get("description"),
+            "image_url": meme.get("url")
+        }
+    except Exception as e:
+        return {"error": str(e)}
